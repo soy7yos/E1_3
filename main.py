@@ -79,31 +79,91 @@ def measure_mac_time(pattern, filter_, repeat=10):
 
 
 # ----------------------------------------
+# 3. 모드 1: 사용자 입력 (3x3) 처리
+# ----------------------------------------
+ 
+MODE1_SIZE = 3
+ 
+ 
+def parse_row(line, size):
+    """
+    한 줄(공백 구분)을 파싱해 float 리스트로 반환.
+    실패 시 None 반환 (호출부에서 재입력 유도).
+    """
+    tokens = line.strip().split()
+    if len(tokens) != size:
+        return None
+    try:
+        return [float(t) for t in tokens]
+    except ValueError:
+        return None
+ 
+ 
+def input_grid(label, size):
+    """
+    size줄을 공백 구분으로 입력받아 size x size 그리드 생성.
+    행/열 개수 불일치, 숫자 파싱 실패 시 안내 후 해당 줄 재입력.
+    """
+    print(f"\n{label} ({size}줄 입력, 공백 구분)")
+    grid = []
+    row_idx = 0
+    while row_idx < size:
+        line = input()
+        row = parse_row(line, size)
+        if row is None:
+            print(f"입력 형식 오류: 각 줄에 {size}개의 숫자를 공백으로 구분해 입력하세요.")
+            continue
+        grid.append(row)
+        row_idx += 1
+    return grid
+ 
+ 
+def run_mode1():
+    """모드 1: 사용자 입력(3x3) → MAC 연산 → 판정 → 성능 분석"""
+    print("\n" + "-" * 40)
+    print("# [1] 필터 입력")
+    print("-" * 40)
+    filter_a = input_grid("필터 A", MODE1_SIZE)
+    filter_b = input_grid("필터 B", MODE1_SIZE)
+ 
+    print("\n" + "-" * 40)
+    print("# [2] 패턴 입력")
+    print("-" * 40)
+    pattern = input_grid("패턴", MODE1_SIZE)
+ 
+    print("\n" + "-" * 40)
+    print("# [3] MAC 결과")
+    print("-" * 40)
+    avg_ms_a, score_a = measure_mac_time(pattern, filter_a, repeat=10)
+    avg_ms_b, score_b = measure_mac_time(pattern, filter_b, repeat=10)
+    avg_ms = (avg_ms_a + avg_ms_b) / 2
+ 
+    print(f"A 점수: {score_a}")
+    print(f"B 점수: {score_b}")
+    print(f"연산 시간(평균/10회): {avg_ms:.4f} ms")
+ 
+    if abs(score_a - score_b) < 1e-9:
+        print("판정: 판정 불가 (|A-B| < 1e-9)")
+    elif score_a > score_b:
+        print("판정: A")
+    else:
+        print("판정: B")
+
+
+# ----------------------------------------
 # 간단 동작 확인 (1단계 자체 테스트용)
 # ----------------------------------------
 
 if __name__ == "__main__":
-    cross_filter = [
-        [0, 1, 0],
-        [1, 1, 1],
-        [0, 1, 0],
-    ]
-    x_filter = [
-        [1, 0, 1],
-        [0, 1, 0],
-        [1, 0, 1],
-    ]
-    cross_pattern = [
-        [0, 1, 0],
-        [1, 1, 1],
-        [0, 1, 0],
-    ]
-
-    print("=== 1단계 동작 확인 ===")
-    score_a = mac_operation(cross_pattern, cross_filter)
-    score_b = mac_operation(cross_pattern, x_filter)
-    print(f"Cross 필터 점수: {score_a}")
-    print(f"X 필터 점수: {score_b}")
-
-    avg_ms, _ = measure_mac_time(cross_pattern, cross_filter, repeat=10)
-    print(f"연산 시간(평균/10회): {avg_ms:.4f} ms")
+    print("=== Mini NPU Simulator ===")
+    print("[모드 선택]")
+    print("1. 사용자 입력 (3x3)")
+    print("2. data.json 분석")
+    choice = input("선택: ").strip()
+ 
+    if choice == "1":
+        run_mode1()
+    elif choice == "2":
+        print("모드 2는 3단계에서 구현 예정입니다.")
+    else:
+        print("잘못된 선택입니다. 1 또는 2를 입력하세요.")
