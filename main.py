@@ -151,6 +151,208 @@ def run_mode1():
 
 
 # ----------------------------------------
+# 3. 모드 2: data.json 로드 및 스키마 검증
+# ----------------------------------------
+
+DATA_JSON_PATH = "data.json"
+
+
+def normalize_label(raw):
+    """
+    원본 값을 표준 라벨(Cross/X)로 정규화.
+    expected: '+' -> Cross, 'x' -> X
+    filter 키: 'cross' -> Cross, 'x' -> X
+    매칭 실패 시 None 반환.
+    """
+    if raw is None:
+        return None
+    key = str(raw).strip().lower()
+    if key in ("+", "cross"):
+        return "Cross"
+    if key == "x":
+        return "X"
+    return None
+
+
+def load_data_json(path=DATA_JSON_PATH):
+    """
+    data.json을 로드.
+    실패 시 (None, 에러메시지) 반환. 프로그램은 종료시키지 않음.
+    """
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data, None
+    except FileNotFoundError:
+        return None, f"파일을 찾을 수 없습니다: {path}"
+    except json.JSONDecodeError as e:
+        return None, f"JSON 파싱 오류: {e}"
+
+
+def extract_size_from_key(pattern_key):
+    """
+    'size_5_1' -> 5, 'size_13_2' -> 13 형태로 N 추출.
+    형식이 맞지 않으면 None 반환.
+    """
+    parts = pattern_key.split("_")
+    if len(parts) < 2 or parts[0] != "size":
+        return None
+    try:
+        return int(parts[1])
+    except ValueError:
+        return None
+
+
+def get_filters_for_size(filters, size):
+    """
+    filters에서 size_N 항목을 찾아 (cross_filter, x_filter, 에러메시지) 반환.
+    없으면 (None, None, 에러메시지).
+    """
+    size_key = f"size_{size}"
+    if size_key not in filters:
+        return None, None, f"{size_key} 필터가 data.json에 존재하지 않습니다."
+
+    size_filters = filters[size_key]
+    cross_f = None
+    x_f = None
+    for raw_key, grid in size_filters.items():
+        label = normalize_label(raw_key)
+        if label == "Cross":
+            cross_f = grid
+        elif label == "X":
+            x_f = grid
+
+    if cross_f is None or x_f is None:
+        return None, None, f"{size_key}에서 Cross/X 필터를 모두 찾지 못했습니다 (키: {list(size_filters.keys())})."
+
+    return cross_f, x_f, None
+
+
+def validate_size_match(pattern_input, cross_f, x_f, expected_size):
+    """
+    패턴/필터 크기가 expected_size(N)와 일치하는지 검증.
+    불일치 시 에러메시지 반환, 일치하면 None.
+    """
+    p_size = len(pattern_input)
+    if p_size != expected_size:
+        return f"패턴 크기 불일치: 실제 {p_size}, 기대 {expected_size}"
+    for row in pattern_input:
+        if len(row) != expected_size:
+            return f"패턴 행 길이 불일치: 실제 {len(row)}, 기대 {expected_size}"
+
+    for label, f in (("Cross", cross_f), ("X", x_f)):
+        if len(f) != expected_size:
+            return f"{label} 필터 크기 불일치: 실제 {len(f)}, 기대 {expected_size}"
+        for row in f:
+            if len(row) != expected_size:
+                return f"{label} 필터 행 길이 불일치: 실제 {len(row)}, 기대 {expected_size}"
+
+    return None
+
+
+def load_and_validate_cases(data):
+    """
+    data.json 구조(filters/patterns)를 순회하며 케이스 목록 생성.
+    각 케이스: {key, size, pattern, cross_f, x_f, expected_label, error}
+    error가 있으면 이후 단계(MAC 연산)는 건너뛰고 FAIL 처리 대상.
+    """
+    cases = []
+
+    filters = data.get("filters")
+    patterns = data.get("patterns")
+
+    if filters is None or patterns is None:
+        return cases, "data.json에 'filters' 또는 'patterns' 키가 없습니다."
+
+    for pattern_key, pattern_obj in patterns.items():
+        size = extract_size_from_key(pattern_key)
+        case = {
+            "key": pattern_key,
+            "size": size,
+            "pattern": None,
+            "cross_f": None,
+            "x_f": None,
+            "expected_label": None,
+            "error": None,
+        }
+
+        if size is None:
+            case["error"] = f"패턴 키 형식 오류: '{pattern_key}'에서 크기(N)를 추출할 수 없습니다."
+            cases.append(case)
+            continue
+
+        pattern_input = pattern_obj.get("input")
+        expected_raw = pattern_obj.get("expected")
+
+        if pattern_input is None:
+            case["error"] = "패턴 데이터(input)가 없습니다."
+            cases.append(case)
+            continue
+
+        expected_label = normalize_label(expected_raw)
+        if expected_label is None:
+            case["error"] = f"expected 값 '{expected_raw}'을(를) 표준 라벨로 정규화할 수 없습니다."
+            cases.append(case)
+            continue
+
+        cross_f, x_f, err = get_filters_for_size(filters, size)
+        if err:
+            case["error"] = err
+            cases.append(case)
+            continue
+
+        size_err = validate_size_match(pattern_input, cross_f, x_f, size)
+        if size_err:
+            case["error"] = size_err
+            cases.append(case)
+            continue
+
+        case["pattern"] = pattern_input
+        case["cross_f"] = cross_f
+        case["x_f"] = x_f
+        case["expected_label"] = expected_label
+        cases.append(case)
+
+    return cases, None
+
+
+def run_mode2_load_only():
+    """3단계 자체 확인용: 로드 + 검증까지만 수행하고 결과 출력 (판정/성능은 4~5단계)"""
+    print("\n" + "-" * 40)
+    print("# [1] 필터 로드")
+    print("-" * 40)
+
+    data, err = load_data_json()
+    if err:
+        print(f"✗ data.json 로드 실패: {err}")
+        return
+
+    for size in (5, 13, 25):
+        _, _, ferr = get_filters_for_size(data.get("filters", {}), size)
+        if ferr:
+            print(f"✗ size_{size} 필터 로드 실패: {ferr}")
+        else:
+            print(f"✓ size_{size} 필터 로드 완료 (Cross, X)")
+
+    print("\n" + "-" * 40)
+    print("# [2] 패턴 로드 및 검증")
+    print("-" * 40)
+
+    cases, load_err = load_and_validate_cases(data)
+    if load_err:
+        print(f"✗ {load_err}")
+        return
+
+    for case in cases:
+        if case["error"]:
+            print(f"--- {case['key']} ---")
+            print(f"✗ FAIL (검증 오류): {case['error']}")
+        else:
+            print(f"--- {case['key']} ---")
+            print(f"✓ 검증 통과 (size={case['size']}, expected={case['expected_label']})")
+
+
+# ----------------------------------------
 # 간단 동작 확인 (1단계 자체 테스트용)
 # ----------------------------------------
 
@@ -164,6 +366,6 @@ if __name__ == "__main__":
     if choice == "1":
         run_mode1()
     elif choice == "2":
-        print("모드 2는 3단계에서 구현 예정입니다.")
+        run_mode2_load_only()
     else:
         print("잘못된 선택입니다. 1 또는 2를 입력하세요.")
