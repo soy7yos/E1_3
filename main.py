@@ -353,6 +353,79 @@ def run_mode2_load_only():
 
 
 # ----------------------------------------
+# 4. 모드 2: 판정 로직 (epsilon 비교 + PASS/FAIL)
+# ----------------------------------------
+
+EPSILON = 1e-9
+
+
+def judge_case(cross_score, x_score, epsilon=EPSILON):
+    """
+    Cross/X 점수 비교 후 판정 라벨 반환.
+    동점(|Cross-X| < epsilon)이면 'UNDECIDED'.
+    """
+    if abs(cross_score - x_score) < epsilon:
+        return "UNDECIDED"
+    return "Cross" if cross_score > x_score else "X"
+
+
+def run_mode2():
+    """모드 2: data.json 로드 → 검증 → MAC 연산 → 판정 → PASS/FAIL 출력"""
+    print("\n" + "-" * 40)
+    print("# [1] 필터 로드")
+    print("-" * 40)
+
+    data, err = load_data_json()
+    if err:
+        print(f"✗ data.json 로드 실패: {err}")
+        return
+
+    for size in (5, 13, 25):
+        _, _, ferr = get_filters_for_size(data.get("filters", {}), size)
+        if ferr:
+            print(f"✗ size_{size} 필터 로드 실패: {ferr}")
+        else:
+            print(f"✓ size_{size} 필터 로드 완료 (Cross, X)")
+
+    print("\n" + "-" * 40)
+    print("# [2] 패턴 분석 (라벨 정규화 적용)")
+    print("-" * 40)
+
+    cases, load_err = load_and_validate_cases(data)
+    if load_err:
+        print(f"✗ {load_err}")
+        return
+
+    for case in cases:
+        print(f"--- {case['key']} ---")
+
+        if case["error"]:
+            print(f"FAIL (검증 오류): {case['error']}")
+            case["result"] = "FAIL"
+            continue
+
+        cross_score = mac_operation(case["pattern"], case["cross_f"])
+        x_score = mac_operation(case["pattern"], case["x_f"])
+        verdict = judge_case(cross_score, x_score)
+
+        print(f"Cross 점수: {cross_score}")
+        print(f"X 점수: {x_score}")
+
+        expected = case["expected_label"]
+        if verdict == expected:
+            print(f"판정: {verdict} | expected: {expected} | PASS")
+            case["result"] = "PASS"
+        elif verdict == "UNDECIDED":
+            print(f"판정: UNDECIDED | expected: {expected} | FAIL (동점 규칙)")
+            case["result"] = "FAIL"
+        else:
+            print(f"판정: {verdict} | expected: {expected} | FAIL")
+            case["result"] = "FAIL"
+
+    return cases
+
+
+# ----------------------------------------
 # 간단 동작 확인 (1단계 자체 테스트용)
 # ----------------------------------------
 
@@ -366,6 +439,6 @@ if __name__ == "__main__":
     if choice == "1":
         run_mode1()
     elif choice == "2":
-        run_mode2_load_only()
+        run_mode2()
     else:
         print("잘못된 선택입니다. 1 또는 2를 입력하세요.")

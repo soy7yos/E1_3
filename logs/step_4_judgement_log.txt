@@ -1,0 +1,43 @@
+Script started on Fri Aug 14 14:59:53 2026
+[1m[7m%[27m[1m[0m                                                                                      [0m[27m[24m[Jsysy22042026@c6r2s5 E1_3 % [K[?2004h[7mpython3 main.py[27m
+[K[A[27C[27mp[27my[27mt[27mh[27mo[27mn[27m3[27m [27mm[27ma[27mi[27mn[27m.[27mp[27my[1B[K[A[42C[1B[K[A[42C[?2004l[1B=== Mini NPU Simulator ===
+[모드 선택]
+1. 사용자 입력 (3x3)
+2. data.json 분석
+선택: 2
+
+----------------------------------------
+# [1] 필터 로드
+----------------------------------------
+✓ size_5 필터 로드 완료 (Cross, X)
+✓ size_13 필터 로드 완료 (Cross, X)
+✓ size_25 필터 로드 완료 (Cross, X)
+
+----------------------------------------
+# [2] 패턴 분석 (라벨 정규화 적용)
+----------------------------------------
+--- size_5_1 ---
+Cross 점수: 0.9
+X 점수: 0.8999999999999999
+판정: UNDECIDED | expected: X | FAIL (동점 규칙)
+--- size_5_2 ---
+Cross 점수: 8.9
+X 점수: 0.1
+판정: Cross | expected: Cross | PASS
+--- size_13_1 ---
+Cross 점수: 0.3
+X 점수: 14.700000000000008
+판정: X | expected: X | PASS
+--- size_13_2 ---
+Cross 점수: 7.499999999999997
+X 점수: 7.5
+판정: UNDECIDED | expected: Cross | FAIL (동점 규칙)
+--- size_25_1 ---
+Cross 점수: 4.9
+X 점수: 4.899999999999999
+판정: UNDECIDED | expected: X | FAIL (동점 규칙)
+--- size_25_2 ---
+Cross 점수: 52.9
+X 점수: 0.1
+판정: Cross | expected: Cross | PASS
+[1m[7m%[27m[1m[0m                                                                                      [0m[27m[24m[Jsysy22042026@c6r2s5 E1_3 % [K[?2004h
