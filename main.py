@@ -442,6 +442,7 @@ def run_mode2():
 
     perf_results = run_performance_analysis(size_data_map, repeat=10)
     print_performance_table(perf_results)
+    print_summary_report(cases)
 
     return cases
 
@@ -472,6 +473,35 @@ def print_performance_table(results):
     print(f"{'크기':<10}{'평균 시간(ms)':<16}{'연산 횟수'}")
     for size, avg_ms, op_count in results:
         print(f"{f'{size}x{size}':<10}{avg_ms:<16.4f}{op_count}")
+
+
+# ----------------------------------------
+# 6. 결과 요약 (총/통과/실패 + 실패 케이스 목록)
+# ----------------------------------------
+
+def print_summary_report(cases):
+    """전체 테스트 수/통과 수/실패 수 및 실패 케이스 목록 출력"""
+    total = len(cases)
+    passed = sum(1 for c in cases if c.get("result") == "PASS")
+    failed = sum(1 for c in cases if c.get("result") == "FAIL")
+
+    print("\n" + "-" * 40)
+    print("# [4] 결과 요약")
+    print("-" * 40)
+    print(f"총 테스트: {total}개")
+    print(f"통과: {passed}개")
+    print(f"실패: {failed}개")
+
+    fail_cases = [c for c in cases if c.get("result") == "FAIL"]
+    if fail_cases:
+        print("실패 케이스:")
+        for c in fail_cases:
+            if c["error"]:
+                reason = f"검증 오류: {c['error']}"
+            else:
+                reason = f"동점(UNDECIDED) 처리 규칙에 따라 FAIL (expected: {c['expected_label']})"
+            print(f"- {c['key']}: {reason}")
+    print("(상세 원인 분석 및 복잡도 설명은 README.md의 \"결과 리포트\" 섹션 참고)")
 
 
 # ----------------------------------------
