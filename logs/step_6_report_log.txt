@@ -40,14 +40,38 @@ Cross 점수: 52.9
 X 점수: 0.1
 판정: Cross | expected: Cross | PASS
 
+----------------------------------------
+# [3] 성능 분석 (평균/10회)
+----------------------------------------
+3x3       0.0014          9
+5x5       0.0023          25
+13x13     0.0091          169
+25x25     0.0281          625
+
+----------------------------------------
+# [4] 결과 요약
+----------------------------------------
+총 테스트: 6개
+통과: 3개
+실패: 3개
+실패 케이스:
+- size_5_1: 동점(UNDECIDED) 처리 규칙에 따라 FAIL (expected: X)
+- size_13_2: 동점(UNDECIDED) 처리 규칙에 따라 FAIL (expected: Cross)
+- size_25_1: 동점(UNDECIDED) 처리 규칙에 따라 FAIL (expected: X)
+
 $ git add main.py
-$ git commit -m "feat: 모드 2 판정 로직(epsilon 비교) 및 PASS/FAIL 출력 구현"
-[main ee9d7ef] feat: 모드 2 판정 로직(epsilon 비교) 및 PASS/FAIL 출력 구현
- 2 files changed, 117 insertions(+), 1 deletion(-)
- create mode 100644 logs/step_4_judgement_log.txt
+$ git commit -m "feat: 결과 요약(총/통과/실패) 콘솔 출력 구현"
+[main 31ea40f] feat: 결과 요약(총/통과/실패) 콘솔 출력 구현
+ 1 file changed, 30 insertions(+)
+
+$ git add README.md
+$ git commit -m "docs: 결과 리포트(실패 원인 분석 + 시간 복잡도 분석) 작성"
+[main 042e5b7] docs: 결과 리포트(실패 원인 분석 + 시간 복잡도 분석) 작성
+ 1 file changed, 26 insertions(+)
+ create mode 100644 README.md
 
 $ git push
 To https://github.com/****os/E1_3.git
-   60f96e2..ee9d7ef  main -> main
+   a813847..042e5b7  main -> main
 
 $ exit

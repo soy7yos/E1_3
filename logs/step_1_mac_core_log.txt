@@ -1,0 +1,17 @@
+$ python3 main.py
+=== 1단계 동작 확인 ===
+Cross 필터 점수: 5.0
+X 필터 점수: 1.0
+연산 시간(평균/10회): 0.0025 ms
+
+$ git add main.py
+$ git commit -m "feat: MAC 연산 코어 함수 및 데이터 구조 구현"
+[main b556e32] feat: MAC 연산 코어 함수 및 데이터 구조 구현
+ 1 file changed, 109 insertions(+)
+ create mode 100644 main.py
+
+$ git push
+To https://github.com/****os/E1_3.git
+ * [new branch]      main -> main
+
+$ exit
