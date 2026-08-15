@@ -422,7 +422,56 @@ def run_mode2():
             print(f"판정: {verdict} | expected: {expected} | FAIL")
             case["result"] = "FAIL"
 
+    # 3x3 고정 데이터 추가 (성능 분석용)
+    fixed_3x3_cross_filter = [
+        [0.0, 1.0, 0.0],
+        [1.0, 1.0, 1.0],
+        [0.0, 1.0, 0.0]
+    ]
+    fixed_3x3_pattern = [
+        [0.0, 1.0, 0.0],
+        [1.0, 1.0, 1.0],
+        [0.0, 1.0, 0.0]
+    ]
+
+    size_data_map = {3: (fixed_3x3_pattern, fixed_3x3_cross_filter)}
+
+    for case in cases:
+        if case["error"] is None and case["size"] not in size_data_map:
+            size_data_map[case["size"]] = (case["pattern"], case["cross_f"])
+
+    perf_results = run_performance_analysis(size_data_map, repeat=10)
+    print_performance_table(perf_results)
+
     return cases
+
+
+# ----------------------------------------
+# 5. 성능 분석 (크기별 10회 반복 측정)
+# ----------------------------------------
+
+def run_performance_analysis(size_data_map, repeat=10):
+    """
+    size_data_map: {size: (pattern, filter_)} 형태.
+    각 크기별 MAC 연산을 repeat회 측정, 평균 시간(ms)과 연산 횟수(N^2) 반환.
+    반환: [(size, avg_ms, op_count), ...] (size 오름차순)
+    """
+    results = []
+    for size in sorted(size_data_map.keys()):
+        pattern, filter_ = size_data_map[size]
+        avg_ms, _ = measure_mac_time(pattern, filter_, repeat=repeat)
+        op_count = size * size
+        results.append((size, avg_ms, op_count))
+    return results
+
+
+def print_performance_table(results):
+    print("\n" + "-" * 40)
+    print("# [3] 성능 분석 (평균/10회)")
+    print("-" * 40)
+    print(f"{'크기':<10}{'평균 시간(ms)':<16}{'연산 횟수'}")
+    for size, avg_ms, op_count in results:
+        print(f"{f'{size}x{size}':<10}{avg_ms:<16.4f}{op_count}")
 
 
 # ----------------------------------------

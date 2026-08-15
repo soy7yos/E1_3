@@ -40,4 +40,21 @@ X 점수: 4.899999999999999
 Cross 점수: 52.9
 X 점수: 0.1
 판정: Cross | expected: Cross | PASS
-[1m[7m%[27m[1m[0m                                                                                      [0m[27m[24m[Jsysy22042026@c6r2s5 E1_3 % [K[?2004h
+[1m[7m%[27m[1m[0m                                                                                      [0m[27m[24m[Jsysy22042026@c6r2s5 E1_3 % [K[?2004hggit add m m .[?2004l
+[1m[7m%[27m[1m[0m                                                                                      [0m[27m[24m[Jsysy22042026@c6r2s5 E1_3 % [K[?2004h[7mgit commit -m "feat: 모드 2 판정 로직(epsilon 비교) 및 PASS[7m/[7mFAIL 출력 구현"[27m[K[A[11C[27mg[27mi[27mt[27m [27mc[27mo[27mm[27mm[27mi[27mt[27m [27m-[27mm[27m [27m"[27mf[27me[27ma[27mt[27m:[27m [27m모[27m[27m드[27m[27m [27m2[27m [27m판[27m[27m정[27m[27m [27m로[27m[27m직[27m[27m([27me[27mp[27ms[27mi[27ml[27mo[27mn[27m [27m비[27m[27m교[27m[27m)[27m [27m및[27m[27m [27mP[27mA[27mS[27mS/[27mF[27mA[27mI[27mL[27m [27m출[27m[27m력[27m[27m [27m구[27m[27m현[27m[27m"[?2004l
+[main ee9d7ef] feat: 모드 2 판정 로직(epsilon 비교) 및 PASS/FAIL 출력 구현
+ 2 files changed, 117 insertions(+), 1 deletion(-)
+ create mode 100644 logs/step_4_judgement_log.txt
+[1m[7m%[27m[1m[0m                                                                                      [0m[27m[24m[Jsysy22042026@c6r2s5 E1_3 % [K[?2004hggit push[?2004l
+e오브젝트 나열하는 중: 8, 완료.
+오브젝트 개수 세는 중:  12% (1/8)오브젝트 개수 세는 중:  25% (2/8)오브젝트 개수 세는 중:  37% (3/8)오브젝트 개수 세는 중:  50% (4/8)오브젝트 개수 세는 중:  62% (5/8)오브젝트 개수 세는 중:  75% (6/8)오브젝트 개수 세는 중:  87% (7/8)오브젝트 개수 세는 중: 100% (8/8)오브젝트 개수 세는 중: 100% (8/8), 완료.
+Delta compression using up to 6 threads
+오브젝트 압축하는 중:  20% (1/5)오브젝트 압축하는 중:  40% (2/5)오브젝트 압축하는 중:  60% (3/5)오브젝트 압축하는 중:  80% (4/5)오브젝트 압축하는 중: 100% (5/5)오브젝트 압축하는 중: 100% (5/5), 완료.
+오브젝트 쓰는 중:  20% (1/5)오브젝트 쓰는 중:  40% (2/5)오브젝트 쓰는 중:  60% (3/5)오브젝트 쓰는 중:  80% (4/5)오브젝트 쓰는 중: 100% (5/5)오브젝트 쓰는 중: 100% (5/5), 1.66 KiB | 1.66 MiB/s, 완료.
+Total 5 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas:   0% (0/1)[Kremote: Resolving deltas: 100% (1/1)[Kremote: Resolving deltas: 100% (1/1), completed with 1 local object.[K
+To https://github.com/soy7yos/E1_3.git
+   60f96e2..ee9d7ef  main -> main
+[1m[7m%[27m[1m[0m                                                                                      [0m[27m[24m[Jsysy22042026@c6r2s5 E1_3 % [K[?2004heexit[?2004l
+
+Script done on Fri Aug 14 15:03:22 2026
